@@ -34,7 +34,7 @@ corrida      = 0
 
 
 entrada=np.loadtxt(archivo_in,comments='#',dtype='str')
-
+print entrada
 
 print 'entrada para la funcion analisis'
 print entrada
