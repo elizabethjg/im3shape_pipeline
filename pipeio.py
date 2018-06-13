@@ -76,14 +76,17 @@ def sex_config_file(sexrun, filtro, corrida, pixsize, zeropoint, gain, seeing, s
 		sex_salida		= sex_path + 'run1-'+filtro+corrida+'.cat'		
 		output_format	= 'ASCII_HEAD'
 		thresh			= '5'
+		check_type      = 'NONE'
 	elif sexrun == 'second':
 		sex_salida		= sex_path + 'run2-'+filtro+corrida+'.cat'
 		output_format	= 'FITS_LDAC'
 		thresh			= '1.5'	
+		check_type      = 'SEGMENTATION'
 	elif sexrun == 'third':
 		sex_salida		= sex_path + 'run2-'+filtro+corrida+'.cat'
 		output_format	= 'ASCII_HEAD'
 		thresh			= '1.5'	
+		check_type      = 'NONE'
 
 
 	os.system('rm '+sex_conf)
@@ -126,11 +129,11 @@ def sex_config_file(sexrun, filtro, corrida, pixsize, zeropoint, gain, seeing, s
 	f1.write('BACKPHOTO_TYPE	GLOBAL		# can be "GLOBAL" or "LOCAL" (*)\n')
 	f1.write('BACKPHOTO_THICK	24			# thickness of the background LOCAL annulus (*)\n')
 	f1.write('#------------------------------ Check Image ----------------------------------\n')
-	f1.write('CHECKIMAGE_TYPE	NONE			# can be one of "NONE", "BACKGROUND",\n')
+	f1.write('CHECKIMAGE_TYPE	'+check_type+'			# can be one of "NONE", "BACKGROUND",\n')
 	f1.write('						# "MINIBACKGROUND", "-BACKGROUND", "OBJECTS",\n')
 	f1.write('						# "-OBJECTS", "SEGMENTATION", "APERTURES",\n')
 	f1.write('						# or "FILTERED" (*)\n')
-	f1.write('CHECKIMAGE_NAME	apertures.fits	# Filename for the check-image (*)\n')
+	f1.write('CHECKIMAGE_NAME	'+sex_path+'seg_'+corrida+'.fits	# Filename for the check-image (*)\n')
 	f1.write('#--------------------- Memory (change with caution!) -------------------------\n')
 	f1.write('MEMORY_OBJSTACK	8000			# number of objects in stack\n')
 	f1.write('MEMORY_PIXSTACK	400000		# number of pixels in stack\n')
@@ -189,8 +192,8 @@ def psfex_config_file(sex_salida, filtro, corrida):
 	f1.write(' \n')
 	f1.write('SAMPLE_AUTOSELECT  Y            # Automatically select the FWHM (Y/N) ?\n')
 	f1.write('SAMPLEVAR_TYPE     SEEING       # File-to-file PSF variability: NONE or SEEING\n')
-	f1.write('SAMPLE_FWHMRANGE   1, 50     # Allowed FWHM range\n')	#2,10
-	f1.write('SAMPLE_VARIABILITY 1.0          # 0.5 Allowed FWHM variability (1.0 = 100%)\n')
+	f1.write('SAMPLE_FWHMRANGE   2, 10     # Allowed FWHM range\n')	#2,10
+	f1.write('SAMPLE_VARIABILITY 0.5          # 0.5 Allowed FWHM variability (1.0 = 100%)\n')
 	f1.write('SAMPLE_MINSN       20.           # 20. Minimum S/N for a source to be used\n')
 	f1.write('SAMPLE_MAXELLIP    0.2          #0.2 Maximum (A-B)/(A+B) for a source to be used\n')
 	f1.write(' \n')
@@ -274,7 +277,7 @@ def im2_config_file(image, im2_entrada, im2_psf, corrida, chains=2, niter=200):
 	return im2_conf, im2_salida
 	
 	
-def im3_config_file(stampsize,niter,psf_input,corrida):
+def im3_config_file(stampsize,niter,psf_input,cores,corrida):
 	
 	'''
 	Im3Shape configuration file
@@ -289,19 +292,22 @@ def im3_config_file(stampsize,niter,psf_input,corrida):
 	'''	
 	
 	corrida = str(corrida)
-	im3_conf 	= im3_path + 'conf_'+corrida+'.ini'
+	cores = str(cores)
+	im3_conf 	= im3_path + 'conf_'+cores+'.ini'
 
 
 	#os.system('rm '+im2_salida)		# delete any previous file
 	f1=open(im3_conf,'w')
 	f1.write('model_name = sersics \n')
 	f1.write('psf_input = '+psf_input+' \n')
+	f1.write('use_segmentation_mask = YES \n')
+	f1.write('segmentation_mask_filename = '+sex_path+'seg_'+corrida+'.fits \n')
 	f1.write('noise_sigma = 1. \n')
 	f1.write('rescale_stamp = Y \n')
-	f1.write('sersics_x0_min = '+str((int(stampsize)/2)-4)+' \n')
-	f1.write('sersics_x0_max = '+str((int(stampsize)/2)+4)+' \n')
-	f1.write('sersics_y0_min = '+str((int(stampsize)/2)-4)+' \n')
-	f1.write('sersics_y0_max = '+str((int(stampsize)/2)+4)+' \n')
+	f1.write('sersics_x0_min = '+str((int(stampsize)/2.)-2)+' \n')
+	f1.write('sersics_x0_max = '+str((int(stampsize)/2.)+2)+' \n')
+	f1.write('sersics_y0_min = '+str((int(stampsize)/2.)-2)+' \n')
+	f1.write('sersics_y0_max = '+str((int(stampsize)/2.)+2)+' \n')
 	f1.write('sersics_bulge_A_max = 10000.0 \n')
 	f1.write('sersics_disc_A_max = 10000.0 \n')
 	f1.write('sersics_bulge_A_start = 0.5 \n')
@@ -337,7 +343,7 @@ def im3_config_file(stampsize,niter,psf_input,corrida):
 
 	
 
-def gx_catalog_header(MAGNITUDES,FILTROS):
+def gx_catalog_header(FILTROS):
 	'''
 	Defines the columns that will be recorded in the galaxy catalog.
 	'''
@@ -455,17 +461,27 @@ def gx_catalog_header(MAGNITUDES,FILTROS):
 	
 	dic=[]
 	
-	for j in range(MAGNITUDES.shape[1]):
-		d = ('MAG_'+FILTROS[j+1], [True, j, '1E', 'MAG_AUTO in filter '+FILTROS[j+1]])
+	
+	
+	for i,j in enumerate(FILTROS[1:]):
+		d = ('MAG_'+j, [True, i, '1E', 'MAG_AUTO in filter '+j])
 		dic.append(d)
 
-	mag_H = [d]
+	if len(FILTROS[1:]) == 0:
+		mag_H = []
+	else:
+		mag_H = [d]
+		
+	rot_H = [
+		('e1_sky                  '	,	[True, 	     0	,    '1E', 'e1 wcs component']),
+		('e2_sky                 '	,	[True, 	     1	,    '1E', 'e2 wcs component'])]
 
 	sex_H = collections.OrderedDict(sex_H)
 	im3_H = collections.OrderedDict(im3_H) 
 	mag_H = collections.OrderedDict(mag_H) 
+	rot_H = collections.OrderedDict(rot_H) 
 
-	return sex_H, im3_H, mag_H
+	return sex_H, im3_H, mag_H, rot_H
 
 def write_header(hdul, full_H):
 	'''
@@ -482,7 +498,7 @@ def write_header(hdul, full_H):
 
 
 
-def merge_gx_catalog(hdul_gx, MAGNITUDES, FILTROS, im3_salida):
+def merge_gx_catalog(hdul_gx, MAGNITUDES, FILTROS, im3_txt, rot_coords):
 	'''
 	Juntamos las salidas de sextractor e im2shape en un catalogo binario
 	'''
@@ -491,26 +507,8 @@ def merge_gx_catalog(hdul_gx, MAGNITUDES, FILTROS, im3_salida):
 	#im2_salida = './im2_files/gx01.out'
 	#im3_txt = np.loadtxt(im3_salida, skiprows=1)
 
-	if len(hdul_gx[2].data) != len(im3_salida):
-		print clr.FAIL+'WARNING: SExtractor and Im3Shape catalogs dont have the same number of objects!'+clr.ENDC
 
-	
-	
-	# CORRELATING ARRAYS -------------------------------------------------------------
-	
-	sexid = hdul_gx[2].data['NUMBER']
-	#im3id = im3_salida[:,0] # PARA C
-	im3id = im3_salida[:,12] # PARA PYTHON
-	nrows = len(hdul_gx[2].data)
-	
-	mask = np.in1d(sexid,im3id)
-	
-	im3_txt = np.zeros((nrows,im3_salida.shape[1]))
-
-	im3_txt[mask,:] = im3_salida
-	
-	sex_H, im3_H, mag_H = gx_catalog_header(MAGNITUDES,FILTROS)
-
+	sex_H, im3_H, mag_H, rot_H = gx_catalog_header(FILTROS)
 
 	# SEXTRACTOR ---------------------------------------------------------------------
 	sex_cols = []
@@ -558,15 +556,25 @@ def merge_gx_catalog(hdul_gx, MAGNITUDES, FILTROS, im3_salida):
 
 	#im3_cols = fits.ColDefs(im3_cols)							# Defines columns
 	del im3_txt
-
+	
+	
+	# ROT COORDS ----------------------------------------------------------------------
+	
+	rot_cols = []
+	
+	for key in rot_H:
+		if not rot_H[key][0]: continue
+		c = fits.Column(name=key, format=rot_H[key][2], array=rot_cords[:, rot_H[key][1]])
+		rot_cols.append(c)
 
 	# MERGE ---------------------------------------------------------------------------
-	all_cols = sex_cols + magnitude_cols + im3_cols
+	all_cols = sex_cols + magnitude_cols + im3_cols + rot_cols
 	hdul = fits.BinTableHDU.from_columns(all_cols)
 
 	full_H = sex_H.copy()
 	full_H.update(mag_H)
 	full_H.update(im3_H)
+	full_H.update(rot_H)
 
 
 	hdul = write_header(hdul, full_H)

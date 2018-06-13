@@ -2,6 +2,7 @@ import sys
 import numpy as np
 from cosmolopy import *
 from scipy.optimize import curve_fit
+from scipy import integrate
 cosmo = {'omega_M_0':0.3, 'omega_lambda_0':0.7, 'omega_k_0':0.0, 'h':0.7}
 
 cvel=299792458;   # Speed of light (m.s-1)
@@ -10,17 +11,61 @@ pc= 3.085678e16; # 1 pc (m)
 Msun=1.989e30 # Solar mass (kg)
 
 def chi_red(ajuste,data,err,gl):
+	from scipy import integrate
 	BIN=len(data)
 	chi=((((ajuste-data)**2)/(err**2)).sum())/float(BIN-1-gl)
 	return chi
-	
-def esis_profile(R,fi,f):
+
+
+def delta_fi(fi):
+	return 1./np.sqrt(np.cos(fi)**2+(f**2)*np.sin(fi)**2)
+
+
+def esis_profile_sigma(RDfi,f,disp=250.):
+	R,fi = RDfi
 	Rm=R*1.e6*pc
-	R0 = (4.0*np.pi)*((sigma**2)/(cvel**2))
-	b = x*np.sqrt(np.cos(fi)**2+(f**2)*np.sin(fi)**2)
-	shear = np.sqrt(f)/(2.*b)
-	return b,shear
+	R0 = ((disp*1.e3)**2)/G
+	b = (Rm/R0)*np.sqrt((f**2)*np.cos(fi)**2+np.sin(fi)**2)
+	D_Sigma = (np.sqrt(f)/(2.*b))*(pc**2/Msun)
+	Rout = R*np.sqrt((f**2)*np.cos(fi)**2+np.sin(fi)**2)
+	return Rout,D_Sigma
 	
+		
+def e_SIS_stack_fit(R,fi,D_Sigma,err):	
+
+	e_SIS_out=curve_fit(esis_profile_sigma2,(R,fi),D_Sigma,sigma=err,absolute_sigma=True)
+	pcov=e_SIS_out[1]
+	perr = np.sqrt(np.diag(pcov))
+	e_f=perr[0]
+	e_disp=perr[1]
+	f=e_SIS_out[0][0]
+	disp=e_SIS_out[0][1]		
+
+
+
+
+def esis_profile_sigma_mod_per(R,fi,f,disp=250.):
+	Rm = R*1.e6*pc
+	R0 = ((disp*1.e3)**2)/G
+	x2 = lambda fi: 1./np.sqrt((f**2)*np.cos(fi)**2+np.sin(fi)**2)
+	integral1 = integrate.quad(x2, 0.25*np.pi, 0.75*np.pi)[0]
+	integral2 = integrate.quad(x2, 1.25*np.pi, 1.75*np.pi)[0]
+	D_Sigma = (R0/Rm)*(np.sqrt(f)/np.pi)*(integral1+integral2)
+	Rout = R
+	return Rout,D_Sigma	
+	
+	
+def esis_profile_sigma_mod_par(R,fi,f,disp=250.):
+	Rm = R*1.e6*pc
+	R0 = ((disp*1.e3)**2)/G
+	x2 = lambda fi: 1./np.sqrt((f**2)*np.cos(fi)**2+np.sin(fi)**2)
+	integral1 = integrate.quad(x2, 0.*np.pi, 0.25*np.pi)[0]
+	integral2 = integrate.quad(x2, 0.75*np.pi, 1.25*np.pi)[0]
+	integral3 = integrate.quad(x2, 1.75*np.pi, 2.*np.pi)[0]
+	D_Sigma = (R0/Rm)*(np.sqrt(f)/np.pi)*(integral1+integral2+integral3)
+	Rout = R
+	return Rout,D_Sigma	
+
 
 def SIS_stack_fit(R,D_Sigma,err):
 	

@@ -4,6 +4,7 @@ from astropy.io import fits
 import shape_models
 from ctypes import *
 import psfex
+import os
 
 class PSF:
 	'''
@@ -201,6 +202,7 @@ def compute_psf_4im3shape(psf_file, options, ids, x, y, corrida):
 			
 			stamps.append(galsim.ImageF(psfex_stamp))
 			
+		os.system('rm '+im3_psf)
 		galsim.fits.writeCube(stamps, im3_psf)
 			
 				
