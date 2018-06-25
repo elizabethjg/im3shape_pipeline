@@ -114,7 +114,7 @@ def sex_config_file(sexrun, filtro, corrida, pixsize, zeropoint, gain, seeing, s
 	f1.write('#------------------------------ Photometry -----------------------------------\n')
 	f1.write('PHOT_APERTURES	5			# MAG_APER aperture diameter(s) in pixels\n')
 	f1.write('PHOT_AUTOPARAMS	2.5, 3.5		# MAG_AUTO parameters: <Kron_fact>,<min_radius>\n')
-	f1.write('PHOT_PETROPARAMS 2.0, 3.5       # MAG_PETRO parameters: <Petrosian_fact>')
+	f1.write('PHOT_PETROPARAMS 2.0, 3.5       # MAG_PETRO parameters: <Petrosian_fact>\n')
 	f1.write('SATUR_LEVEL		'+satur+'		# level (in ADUs) at which arises saturation\n')
 	f1.write('MAG_ZEROPOINT		'+zeropoint+'			# magnitude zero-point\n') #26.73
 	f1.write('MAG_GAMMA		4.0			# gamma of emulsion (for photographic scans)\n')
