@@ -13,7 +13,7 @@ from py3shape_main import *
 
 def im3call(entrada):
 
-	image, psfex_salida, ids, x, y, cores, corrida = entrada
+	image, psfex_salida, ids, x, y, cores, corrida, nini, nfin = entrada
 	
 	print ids[:10]
 
@@ -34,7 +34,7 @@ def im3call(entrada):
 	#call_im3 = '~/IM3SHAPE/bin/im3shape '+im3_conf+' '+image+' '+im3_entrada+' '+im3_psf+' '+im3_salida+' 0 '+str(len(ids)-1)
 	#call_im3 = 'python ~/IM3SHAPE/bin/im3shape_203.py '+im3_conf+' '+image+' '+im3_entrada+' '+im3_psf+' '+im3_salida+' 0 2'#+str(len(ids)-1)
 	
-	entrada_py3shape = [im3_conf,image,im3_entrada,im3_psf,im3_salida,'0','2']
+	entrada_py3shape = [im3_conf,image,im3_entrada,im3_psf,im3_salida,nini,nfin]
 	
 	main_203(entrada_py3shape)
 	
@@ -87,11 +87,11 @@ def im3paralelo(image, psfex_salida, hdul_gx, cores,corrida):
 	for j in range(cores):
 
 		if j==(cores-1):
-			arreglo = [image, psfex_salida, ids[step:], x[step:], y[step:], j,corrida]
+			arreglo = [image, psfex_salida, ids[step:], x[step:], y[step:], j,corrida,'0',str(len(ids[step:])-1)]
 			entrada.append(arreglo)
 			print len(x[step:])
 		else: 
-			arreglo = [image, psfex_salida, ids[step:step+step0], x[step:step+step0], y[step:step+step0], j,corrida]
+			arreglo = [image, psfex_salida, ids[step:step+step0], x[step:step+step0], y[step:step+step0], j,corrida,'0',str(len(ids[step:step+step0])-1)]
 			entrada.append(arreglo)
 			print len(x[step:step+step0])
 		
