@@ -582,69 +582,75 @@ def merge_gx_catalog(hdul_gx, MAGNITUDES, FILTROS, im3_txt, rot_coords):
 	return hdul
 
 def write_2final_catalog(salida_file, hdul_gx):
-	'''
-	Writes the output to the final catlog
-	'''
+    '''
+    Writes the output to the final catlog
+    '''
 
-	# We first check if the file already exists. If False it means it is the first loop to write and has to create it.
-	# If True it just appends to the end
-	exists = os.path.isfile(salida_file)
+    # We first check if the file already exists. If False it means it is the first loop to write and has to create it.
+    # If True it just appends to the end
+    exists = os.path.isfile(salida_file)
 
-	sex_H, im2_H = gx_catalog_header()
-	full_H = sex_H.copy()
-	full_H.update(im2_H)				# Merge both dict
+    sex_H, im3_H, mag_H, rot_H = gx_catalog_header('r')
+    full_H = sex_H.copy()
+    full_H.update(mag_H)
+    full_H.update(im3_H)
+    full_H.update(rot_H)                # Merge both dict
 
-	if exists:
-		hdul_final 	= fits.open(salida_file)
-		nrows_old 	= len(hdul_final[1].data)
-		nrows_gx 	= len(hdul_gx.data)
-		hdul_aux 	= fits.BinTableHDU.from_columns(hdul_final[1].columns,
-													nrows=nrows_old+nrows_gx,
-													header=hdul_final[1].header)
-		
-		for colname in hdul_final[1].columns.names:
-			hdul_aux.data[colname][nrows_old:] = hdul_gx.data[colname]
+    if exists:
+        hdul_final     = fits.open(salida_file)
+        nrows_old     = len(hdul_final[1].data)
+        nrows_gx     = len(hdul_gx.data)
+        hdul_aux     = fits.BinTableHDU.from_columns(hdul_final[1].columns,
+                                                    nrows=nrows_old+nrows_gx,
+                                                    header=hdul_final[1].header)
+        
+        for colname in hdul_final[1].columns.names:
+            hdul_aux.data[colname][nrows_old:] = hdul_gx.data[colname]
 
-		# Writes the header
-		hdul_aux = write_header(hdul_aux, full_H)
+        # Writes the header
+        hdul_aux = write_header(hdul_aux, full_H)
 
-		hdul_final.close()
-		hdul_aux.writeto(salida_file, overwrite=True)
-		del hdul_final, hdul_aux
-	else:
-		# Writes the header
-		hdul_gx = write_header(hdul_gx, full_H)
+        hdul_final.close()
+        hdul_aux.writeto(salida_file, overwrite=True)
+        del hdul_final, hdul_aux
+    else:
+        # Writes the header
+        hdul_gx = write_header(hdul_gx, full_H)
 
-		hdul_gx.writeto(salida_file)
-		del hdul_gx
+        hdul_gx.writeto(salida_file)
+        del hdul_gx
 
-	return None
+    return None
+
 
 def merge_hdul_parallel(salida):
-	'''
-	Juntar las tablas de todos los procesos en una sola
-	 input:
-	 	salida:			List with multiple threads output. Each element corresponds to a single thread.
-	 					#It should contain the hdul and number of galaxies of each thread.
+    '''
+    Juntar las tablas de todos los procesos en una sola
+     input:
+         salida:            List with multiple threads output. Each element corresponds to a single thread.
+                         It should contain the hdul and number of galaxies of each thread.
 
-	 output:
-	 	hdul_merged:	Hdul object with the data of every thread
-	'''
-	# Specify the index in wich these variables appear
-	i_hdul = 1		# hdul index in each element of salida
-	i_ngx  = 2		# N_gx index in each element of salida
+     output:
+         hdul_merged:    Hdul object with the data of every thread
+    '''
+    # Specify the index in wich these variables appear in salida
+    i_hdul = 1        # hdul index in each element of salida
+    i_ngx  = 2        # N_gx index in each element of salida
 
-	N_tot = sum([corrida[i_ngx] for corrida in salida])		# Sums the number of gx of each process
-	hdul_0 = salida[0][i_hdul]
-	hdul_merged	= fits.BinTableHDU.from_columns(hdul_0.columns,
-												nrows=N_tot,
-												header=hdul_0.header)
-	for i in xrange(1,len(salida)):
-		hdul = salida[i][i_hdul]
-		prev_rows = salida[i-1][i_ngx]		
-		for colname in hdul_0.columns.names:
-			hdul_merged.data[colname][prev_rows:] = hdul.data[colname]
+    N_tot = sum([corrida[i_ngx] for corrida in salida])        # Sums the number of gx of each process
+    hdul_0 = salida[0][i_hdul]
+    hdul_merged    = fits.BinTableHDU.from_columns(hdul_0.columns,
+                                                nrows=N_tot,
+                                                header=hdul_0.header)
+    prev_rows = 0
+    for i in xrange(1,len(salida)):
+        hdul = salida[i][i_hdul]
+        i_rows = salida[i][i_ngx]
+        prev_rows += salida[i-1][i_ngx]
+        for colname in hdul_0.columns.names:
+            hdul_merged.data[colname][prev_rows : prev_rows+i_rows] = hdul.data[colname]
 
-	del salida, hdul_0, hdul
+    del salida, hdul_0, hdul
 
-	return hdul_merged
+    return hdul_merged
+
