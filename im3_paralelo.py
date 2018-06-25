@@ -9,6 +9,7 @@ from multiprocessing import Pool
 from multiprocessing import Process
 from psfex_pipe import *
 from py3shape.options import Options
+from py3shape_main import *
 
 def im3call(entrada):
 
@@ -31,16 +32,21 @@ def im3call(entrada):
 
 	#call_im3 = 'python ~/IM3SHAPE/bin/im3shape.py '+im3_conf+' '+image+' '+im3_entrada+' '+im3_psf+' '+im3_salida+' 0 '+str(len(ids)-1)
 	#call_im3 = '~/IM3SHAPE/bin/im3shape '+im3_conf+' '+image+' '+im3_entrada+' '+im3_psf+' '+im3_salida+' 0 '+str(len(ids)-1)
-	call_im3 = 'python ~/IM3SHAPE/bin/im3shape_203.py '+im3_conf+' '+image+' '+im3_entrada+' '+im3_psf+' '+im3_salida+' 0 2'#+str(len(ids)-1)
+	#call_im3 = 'python ~/IM3SHAPE/bin/im3shape_203.py '+im3_conf+' '+image+' '+im3_entrada+' '+im3_psf+' '+im3_salida+' 0 2'#+str(len(ids)-1)
+	
+	entrada_py3shape = [im3_conf,image,im3_entrada,im3_psf,im3_salida,'0','2']
+	
+	main_203(entrada_py3shape)
+	
 	#call_im3 = 'python ~/IM3SHAPE/bin/im3shape_203.py '+im3_conf+' '+image+' '+im3_entrada+' '+im3_psf+' '+im3_salida+' 0 '+str(len(ids)-1)
-	print clr.OKBLUE + call_im3 + clr.ENDC
-	os.system(call_im3)
+	#print clr.OKBLUE + call_im3 + clr.ENDC
+	#os.system(call_im3)
 	
 	
 	im3_tmp = np.loadtxt(im3_salida)
 	
 	
-	if len(ids) != len(im3out):
+	if len(ids) != len(im3_tmp):
 		print clr.FAIL+'WARNING: SExtractor and Im3Shape catalogs dont have the same number of objects!'+clr.ENDC
 
 	
@@ -55,7 +61,10 @@ def im3call(entrada):
 		mask = np.in1d(ids,im3id)
 		
 		im3_out = np.zeros((nrows,im3_tmp.shape[1]))
-		im3_out[mask,:]    = im3_tmp
+		im3_out[mask,:] = im3_tmp
+	
+	else: 
+		im3_out = im3_tmp
 	
 	return im3_out
 
