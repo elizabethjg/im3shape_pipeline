@@ -1,5 +1,5 @@
 import numpy as np
-from pylab import *
+#from pylab import *
 from astropy.io import fits
 import shape_models
 from ctypes import *

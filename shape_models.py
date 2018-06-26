@@ -3,7 +3,7 @@ from astropy.modeling import fitting, models
 import random
 import os
 from astropy.io import fits
-from pylab import *
+#from pylab import *
 from scipy import signal
 
 ###############################################################################################################

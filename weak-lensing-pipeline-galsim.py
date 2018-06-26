@@ -1,6 +1,5 @@
 import math
 import numpy as np
-from pylab import *
 import cosmolopy.distance as cd
 from multiprocessing import Pool
 from multiprocessing import Process

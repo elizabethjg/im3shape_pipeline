@@ -1,4 +1,3 @@
-from pylab import *
 import os
 #import pyfits
 import sys
@@ -7,6 +6,9 @@ from pipeio import *
 	
 	
 def seeing_func(imagen,pixsize,zeropoint,gain,corrida,filtro,magmax,magmin,fwhmmax,plot):
+	
+	if plot in ('s', 'S', 'si', 'Si', 'SI'):
+		from pylab import *
 
 
 	#print '----------------------------------------------------------------'
