@@ -3,7 +3,7 @@ import numpy as np
 from astropy.io import fits
 import shape_models
 from ctypes import *
-import psfex
+#import psfex
 import os
 
 class PSF:
