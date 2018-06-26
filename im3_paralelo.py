@@ -4,7 +4,6 @@ import numpy as np
 from astropy.io import fits
 from seeing import *
 from pipeio import *
-from psfex import *
 from multiprocessing import Pool
 from multiprocessing import Process
 from psfex_pipe import *
