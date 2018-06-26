@@ -122,10 +122,12 @@ def main_203(argv):
         
         stamp_array=data[int(ypos-half):int(ypos+half), int(xpos-half):int(xpos+half)]
         galaxy = Image(stamp_array)
-
-        stamp_seg_mask=seg_mask[int(ypos-half):int(ypos+half), int(xpos-half):int(xpos+half)]
-        stamp_mask = np.where(stamp_seg_mask==identifier, 1, 0)
-        mask = Image(stamp_mask)
+        if seg_mask:
+            stamp_seg_mask=seg_mask[int(ypos-half):int(ypos+half), int(xpos-half):int(xpos+half)]
+            stamp_mask = np.where(stamp_seg_mask==identifier, 1, 0)
+            mask = Image(stamp_mask)
+        else:
+            mask = None
 
         extra_output = {}
         if options.psf_input == 'moffat_catalog':

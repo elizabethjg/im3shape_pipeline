@@ -23,8 +23,8 @@ def star_gx(sex_salida, fwhm, plot, PSFEx_manual):
 	 						If PSFEx_manual = False, the file is not modified and returns salida_sex
 	'''
 	
-	salida_sex_mod = sex_salida + '_mod'
-	os.system('rm '+salida_sex_mod)
+	sex_salida_mod = sex_salida + '_mod'
+
 
 	# Lee el catalogo de sextractor -------------------------------------------------
 	hdul = fits.open(sex_salida)
@@ -75,7 +75,7 @@ def star_gx(sex_salida, fwhm, plot, PSFEx_manual):
 
 		hdul_psfex = fits.open(sex_salida)						# Abro una copia y guardo los objetos para PSFEx
 		hdul_psfex[2].data = hdul_psfex[2].data[mask_psfex]
-		sex_salida_mod = './sex_files/modified_psfex.cat'
+
 		os.system('rm '+sex_salida_mod)
 		hdul_psfex.writeto(sex_salida_mod)
 		del hdul_psfex

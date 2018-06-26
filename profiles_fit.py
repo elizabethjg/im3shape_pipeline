@@ -141,13 +141,10 @@ def NFW_stack_fit(R,D_Sigma,err,z,roc):
 def SIS_fit(R,shear,err,beta,zlens):
 	# R en Mpc
 	D_ang=cd.angular_diameter_distance(zlens, z0=0, **cosmo)
-	kpcscale=D_ang*(((1.0/3600.0)*np.pi)/180.0)*1000.0
-	
-
 
 	def sis_profile_sigma(R,sigma):
 			#parameters
-		return (4.*np.pi*(sigma**2)*beta*180.*3600.*kpcscale)/(((cvel/1000.)**2.)*2.*R*np.pi*1.e3)
+		return (4.*np.pi*(sigma**2)*beta*D_ang)/(((cvel/1000.)**2.)*2.*R)
 
 	sigma,err_sigma_cuad=curve_fit(sis_profile_sigma,R,shear,sigma=err,absolute_sigma=True)
 

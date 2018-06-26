@@ -29,7 +29,7 @@ plot 		 = 'no'	                #raw_input('Graficar (S/N) ')
 archivo_in	 = 'data_obj.cat'		#int(raw_input('Emepzar en imagen (0 a n) '))
 proc  		 = '001'	                #raw_input('Maquina ')
 simult 		 = 'si'	                #raw_input('Correr filtros en simultaneo ')
-PSFEx_manual = True
+PSFEx_manual = False
 corrida      = 0
 
 
@@ -60,9 +60,9 @@ gain = 1.0#str(hdu[0].header['GAIN'])
 #print '----------------------------------------------------------------'
 #print '                    DETERMINING SEEING                          ' 
 
-SEEING, SATUR=seeing_func(image,pixsize,zeropoint,gain,corrida,filtro,100.,-100.,10.,plot)
+SEEING, SATUR = seeing_func(image,pixsize,zeropoint,gain,corrida,filtro,100.,-100.,10.,plot)
 
-
+SATUR = SATUR*100
 #print '----------------------------------------------------------------'
 #print '             RUNNING SExtractor for stars                       ' 
 
@@ -110,7 +110,9 @@ x   = input_cat[:,1]
 y   = input_cat[:,2]
 
 
-im3_salida = im3call(['gal.004.fits', psfex_salida, ids, x, y, corrida])
+im3_salida = im3call(['gal.004.fits', psfex_salida, ids, x, y, 0,corrida,'0',str(len(x)-1)])
+
+np.savetxt('im3shape.out',im3_salida,fmt=['%20.8f']*86)
 
 	
 print 'END OF THE PROGRAM :)'

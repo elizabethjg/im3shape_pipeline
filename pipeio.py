@@ -300,7 +300,7 @@ def im3_config_file(stampsize,niter,psf_input,cores,corrida):
 	f1=open(im3_conf,'w')
 	f1.write('model_name = sersics \n')
 	f1.write('psf_input = '+psf_input+' \n')
-	f1.write('use_segmentation_mask = YES \n')
+	f1.write('use_segmentation_mask = NO \n')
 	f1.write('segmentation_mask_filename = '+sex_path+'seg_'+corrida+'.fits \n')
 	f1.write('noise_sigma = 1. \n')
 	f1.write('rescale_stamp = Y \n')
@@ -375,7 +375,7 @@ def gx_catalog_header(FILTROS):
 		]
 	# python output
 	im3_H = [
-		('x0                  '	,	[True, 	     0	,    '1J', 'IM3SHAPE parameter']),
+		('x0                  '	,	[True, 	     0	,    '1E', 'IM3SHAPE parameter']),
 		('y0                  '	,	[True, 	     1	,    '1E', 'IM3SHAPE parameter']),
 		('e1                  '	,	[True, 	     2	,    '1D', 'IM3SHAPE parameter']),
 		('e2                  '	,	[True, 		 3	,    '1D', 'IM3SHAPE parameter']),
