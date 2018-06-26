@@ -1,6 +1,5 @@
 import math
 import numpy as np
-from pylab import *
 import os
 import sys
 

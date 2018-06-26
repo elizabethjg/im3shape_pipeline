@@ -6,7 +6,6 @@ from multiprocessing import Process
 import os
 import sys
 from star_gx_des import *
-from rot import *
 from psffile import *
 #from selectstars import *
 #from astropy.wcs import WCS
