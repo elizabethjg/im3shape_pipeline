@@ -7,11 +7,17 @@ from scipy import spatial
 
 
 # Directories where the outputs are going to be written. If they dont exists they are created
-sex_path	       = './sex_files/'
-sex_conf_file_path = '/usr/share/sextractor/'
-psfex_path	       = './psfex_files/'
+hostname = os.uname()[1]
+
+if hostname in ['univac', 'multivac']: sex_conf_file_path = '/usr/share/sextractor/'    #martin
+if hostname in ['peperina']: sex_conf_file_path = '/usr/share/sextractor/'                #elizabeth
+if hostname in ['clemente']: sex_conf_file_path = '/opt/external/gcc/7.2.0/sextractor/2.19.5/share/sextractor/'                #clemente
+
+# Directories where the outputs are going to be written. If they dont exists they are created
+sex_path           = './sex_files/'
+psfex_path           = './psfex_files/'
 check_path         = './check_files/'
-im3_path	       = './im3_files/'
+im3_path           = './im3_files/'
 
 
 
