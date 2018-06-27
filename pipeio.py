@@ -8,13 +8,13 @@ from scipy import spatial
 
 # Directories where the outputs are going to be written. If they dont exists they are created
 hostname = os.uname()[1]
-print hostname
+
 
 if 'clemente' in hostname: 
 	sex_conf_file_path = '/opt/external/gcc/7.2.0/sextractor/2.19.5/share/sextractor/'                #clemente
 else:
 	sex_conf_file_path = '/usr/share/sextractor/'
-print sex_conf_file_path
+
 # Directories where the outputs are going to be written. If they dont exists they are created
 sex_path           = './sex_files/'
 psfex_path           = './psfex_files/'
