@@ -69,11 +69,17 @@ def main_203(argv):
         #error!
         raise IOError('Unknown PSF input')
 
+    ##########################################
+    #   EDITED SEMENTATION MASK
+    ##########################################
+
     # Read in segementation mask
     if options.use_segmentation_mask:
         seg_mask = pyfits.getdata(options.segmentation_mask_filename)
     else:
         seg_mask = None
+    
+    ##########################################
 
     # Create i3_image of certain stamp size
     stamp_size = options.stamp_size
@@ -122,13 +128,18 @@ def main_203(argv):
         
         stamp_array=data[int(ypos-half):int(ypos+half), int(xpos-half):int(xpos+half)]
         galaxy = Image(stamp_array)
+        
+        ##########################################
+        #   EDITED SEMENTATION MASK
+        ##########################################
         if seg_mask:
             stamp_seg_mask=seg_mask[int(ypos-half):int(ypos+half), int(xpos-half):int(xpos+half)]
             stamp_mask = np.where(stamp_seg_mask==identifier, 1, 0)
             mask = Image(stamp_mask)
         else:
             mask = None
-
+		##########################################
+		
         extra_output = {}
         if options.psf_input == 'moffat_catalog':
             # Read PSF catalog entry
