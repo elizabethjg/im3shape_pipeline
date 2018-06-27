@@ -65,7 +65,7 @@ SATUR = SATUR*100
 #print '             RUNNING SExtractor for stars                       ' 
 
 sex_conf, sex_salida = sex_config_file('second', filtro, corrida, pixsize, zeropoint, gain, SEEING, SATUR)
-call_sex = image+' -c '+sex_conf#+' > sex_output'
+callsex = image+' -c '+sex_conf#+' > sex_output'
 print clr.OKBLUE + call_sex	+ clr.ENDC
 out_sex = os.system('sextractor '+callsex)
 if out_sex != 0:
