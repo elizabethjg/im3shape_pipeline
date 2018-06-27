@@ -572,7 +572,7 @@ def merge_gx_catalog(hdul_gx, MAGNITUDES, FILTROS, im3_txt, rot_coords):
 	
 	for key in rot_H:
 		if not rot_H[key][0]: continue
-		c = fits.Column(name=key, format=rot_H[key][2], array=rot_cords[:, rot_H[key][1]])
+		c = fits.Column(name=key, format=rot_H[key][2], array=rot_coords[:, rot_H[key][1]])
 		rot_cols.append(c)
 
 	# MERGE ---------------------------------------------------------------------------
