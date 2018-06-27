@@ -65,9 +65,12 @@ SATUR = SATUR*100
 #print '             RUNNING SExtractor for stars                       ' 
 
 sex_conf, sex_salida = sex_config_file('second', filtro, corrida, pixsize, zeropoint, gain, SEEING, SATUR)
-call_sex = 'sextractor '+image+' -c '+sex_conf#+' > sex_output'
+call_sex = image+' -c '+sex_conf#+' > sex_output'
 print clr.OKBLUE + call_sex	+ clr.ENDC
-os.system(call_sex)
+try:
+	os.system('sextractor '+callsex)
+except:
+	os.system('sex '+callsex)
 
 
 #merge_sex_multiband() # aca juntamos los dos filtros de sextractor

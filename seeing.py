@@ -17,8 +17,11 @@ def seeing_func(imagen,pixsize,zeropoint,gain,corrida,filtro,magmax,magmin,fwhmm
 
 	sexfile, salida_sex = sex_config_file('first', filtro, corrida, pixsize, zeropoint, gain, seeing=1., satur=50000)
 	
-	callsex='sextractor '+imagen+' -c '+sexfile+' > sex_output'		
-	os.system(callsex)
+	callsex=imagen+' -c '+sexfile+' > sex_output'		
+	try:
+		os.system('sextractor '+callsex)
+	except:
+		os.system('sex '+callsex)
 	#-------------------------------------------------------------------------
 
 	cat = np.loadtxt(salida_sex, comments='#') #reads the catalogue of the first run of sextractor
