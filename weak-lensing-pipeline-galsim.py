@@ -67,9 +67,8 @@ SATUR = SATUR*100
 sex_conf, sex_salida = sex_config_file('second', filtro, corrida, pixsize, zeropoint, gain, SEEING, SATUR)
 call_sex = image+' -c '+sex_conf#+' > sex_output'
 print clr.OKBLUE + call_sex	+ clr.ENDC
-try:
-	os.system('sextractor '+callsex)
-except:
+out_sex = os.system('sextractor '+callsex)
+if out_sex != 0:
 	os.system('sex '+callsex)
 
 
