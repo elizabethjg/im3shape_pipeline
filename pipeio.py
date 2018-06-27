@@ -130,7 +130,7 @@ def sex_config_file(sexrun, filtro, corrida, pixsize, zeropoint, gain, seeing, s
 	f1.write('PIXEL_SCALE		'+pixsize+'	# size of pixel in arcsec (0=use FITS WCS info).\n')
 	f1.write('#------------------------- Star/Galaxy Separation ----------------------------\n')
 	f1.write('SEEING_FWHM		'+seeing+'			# stellar FWHM in arcsec\n')
-	f1.write('STARNNW_NAME	default.nnw		# Neural-Network_Weight table filename\n')
+	f1.write('STARNNW_NAME		'+sex_conf_file_path+'default.nnw	# Neural-Network_Weight table filename\n')
 	f1.write('#------------------------------ Background -----------------------------------\n')
 	f1.write('BACK_SIZE		64			# Background mesh: <size> or <width>,<height>\n')
 	f1.write('BACK_FILTERSIZE	3			# Background filter: <size> or <width>,<height>\n')
