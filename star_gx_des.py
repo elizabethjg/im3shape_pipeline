@@ -21,12 +21,11 @@ def star_gx(sex_salida, fwhm, plot, PSFEx_manual):
 	 	salida_sex_mod:		String. Modified SExtractor output filename with '_mod' added at the end.
 	 						If PSFEx_manual = False, the file is not modified and returns salida_sex
 	'''
-	
-	if plot in ('s', 'S', 'si', 'Si', 'SI'):
-		from pylab import *
-	
-	sex_salida_mod = sex_salida + '_mod'
+    if plot in ('s', 'S', 'si', 'Si', 'SI'):
+            from pylab import *
 
+	sex_salida_mod = sex_salida + '_mod'
+	os.system('rm '+sex_salida_mod)
 
 	# Lee el catalogo de sextractor -------------------------------------------------
 	hdul = fits.open(sex_salida)
@@ -58,8 +57,8 @@ def star_gx(sex_salida, fwhm, plot, PSFEx_manual):
 			
 	# Clasifica los objetos ----------------------------------------------------------
 	ancho=0.4  #width in magnitudes 
-	mumin=18.
-	mumax=23.
+	mumin=11.5
+	mumax=17.
 	mu=m*MAGBEST+n
 	mag = (MUMAX-n)
 	mask_good = (MUMAX > mumin) * (FWHM > fwhm-0.8) * (FLAG < 4.0) # Quitamos falsas detecciones
@@ -77,7 +76,7 @@ def star_gx(sex_salida, fwhm, plot, PSFEx_manual):
 
 		hdul_psfex = fits.open(sex_salida)						# Abro una copia y guardo los objetos para PSFEx
 		hdul_psfex[2].data = hdul_psfex[2].data[mask_psfex]
-
+		#sex_salida_mod = './sex_files/modified_psfex.cat'
 		os.system('rm '+sex_salida_mod)
 		hdul_psfex.writeto(sex_salida_mod)
 		del hdul_psfex
@@ -112,7 +111,7 @@ def star_gx(sex_salida, fwhm, plot, PSFEx_manual):
 		
 		plt.figure()
 		plt.plot(FWHM, MAGAUTO,'k.')
-		plt.plot(FLUXRADIUS[mask_stars], MAGAUTO[mask_stars],'b.', FLUXRADIUS[mask_gx], MAGAUTO[mask_gx], 'g.',markersize=2)
+		plt.plot(FWHM[mask_stars], MAGAUTO[mask_stars],'b.', FWHM[mask_gx], MAGAUTO[mask_gx], 'g.',markersize=2)
 		#plt.plot(FWHM[m_candidatas],MAGAUTO[m_candidatas],'g.')
 		if PSFEx_manual: plt.scatter(FWHM[mask_psfex], MAGAUTO[mask_psfex], s=20,edgecolor='r',facecolor='None')
 		plt.xlabel('FWHM')
