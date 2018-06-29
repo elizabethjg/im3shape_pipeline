@@ -6,10 +6,9 @@ from pipeio import *
 	
 	
 def seeing_func(imagen,pixsize,zeropoint,gain,corrida,filtro,magmax,magmin,fwhmmax,plot):
-	
-	if plot in ('s', 'S', 'si', 'Si', 'SI'):
-		from pylab import *
 
+    if plot in ('s', 'S', 'si', 'Si', 'SI'):
+            from pylab import *
 
 	#print '----------------------------------------------------------------'
 	#print '                RUNNING SExtractor (pre-PSFEx)                  '
@@ -17,17 +16,15 @@ def seeing_func(imagen,pixsize,zeropoint,gain,corrida,filtro,magmax,magmin,fwhmm
 
 	sexfile, salida_sex = sex_config_file('first', filtro, corrida, pixsize, zeropoint, gain, seeing=1., satur=50000)
 	
-	callsex=imagen+' -c '+sexfile+' > sex_output'		
-	out_sex = os.system('sextractor '+callsex)
-	if out_sex != 0:
-		os.system('sex '+callsex)
+	callsex='sextractor '+imagen+' -c '+sexfile+' > sex_output'		
+	os.system(callsex)
 	#-------------------------------------------------------------------------
 
 	cat = np.loadtxt(salida_sex, comments='#') #reads the catalogue of the first run of sextractor
 
 	#compute the SATURATION LEVEL and SEEING
 	FLUXMAX = cat[:,8]
-	SATUR=0.6*FLUXMAX.max()
+	SATUR=0.8*FLUXMAX.max()
 		
 	#now, starts to compute the seeing
 	FWHM = cat[:,5]
@@ -36,6 +33,13 @@ def seeing_func(imagen,pixsize,zeropoint,gain,corrida,filtro,magmax,magmin,fwhmm
 	FLUXRADIUS = cat[:,7]
 		
 	if plot in ('s', 'S', 'si', 'Si', 'SI'):
+
+		plt.figure()	
+		plt.plot(MAGBEST,FLUXMAX, 'b.')
+		plt.axhline(SATUR)
+		plt.ylabel('FLUXMAX')
+		plt.xlabel('MAG_BEST')
+		plt.show()
 		plt.figure()	
 		plt.plot(FWHM,MAGBEST, 'b.')
 		plt.ylabel('MAG_BEST')
@@ -64,7 +68,7 @@ def seeing_func(imagen,pixsize,zeropoint,gain,corrida,filtro,magmax,magmin,fwhmm
 		plt.plot(FLUXRADIUS,MAGBEST,'k.')
 		plt.plot(fluxradius,mag,'r.')
 		plt.show()
-		print 'SEEING in pix',moda
+		print 'Seeing in pix',moda
 		plt.figure()	
 		plt.hist(fwhm,15)
 		plt.show()
@@ -73,8 +77,8 @@ def seeing_func(imagen,pixsize,zeropoint,gain,corrida,filtro,magmax,magmin,fwhmm
 	
 	seeing = moda*pixsize
 	print ' '
-	print ' ------------ seeing: ',seeing
-	print ' ------------ imagen: ',imagen
+	print ' ------------ seeing: ', seeing, ' arcsec'
+	print ' ------------ imagen: ', imagen
 	print ' '
 
 	if plot in ('s', 'S', 'si', 'Si', 'SI'):
