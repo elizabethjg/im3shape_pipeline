@@ -21,9 +21,9 @@ def star_gx(sex_salida, fwhm, plot, PSFEx_manual):
 	 	salida_sex_mod:		String. Modified SExtractor output filename with '_mod' added at the end.
 	 						If PSFEx_manual = False, the file is not modified and returns salida_sex
 	'''
-    if plot in ('s', 'S', 'si', 'Si', 'SI'):
-            from pylab import *
-
+	if plot in ('s', 'S', 'si', 'Si', 'SI'):
+		from pylab import *
+	
 	sex_salida_mod = sex_salida + '_mod'
 	os.system('rm '+sex_salida_mod)
 
