@@ -373,7 +373,7 @@ def gx_catalog_header(FILTROS):
 		('MAG_AUTO'		,	[True,	'MAG_AUTO',		'1E', 'Kron-like elliptical aperture magnitude in filter '+FILTROS[0]]),
 		('MAGERR_AUTO'	,	[True,	'MAGERR_AUTO',	'1E', 'RMS error for AUTO magnitude']),
 		('FWHM'			,	[True,	'FWHM_IMAGE',	'1D', 'FWHM assuming a gaussian core']),
-		('FLUX_RADIUS'	,	[False,	'FLUX_RADIUS',	'1D', 'Fraction-of-light radii']),
+		('FLUX_RADIUS'	,	[True,	'FLUX_RADIUS',	'1D', 'Fraction-of-light radii']),
 		('FLUX_MAX'		,	[False,	'FLUX_MAX',		'1D', 'Peak flux above background']),
 		('MU_MAX'		,	[False,	'MU_MAX',		'1D', 'Peak surface brightness above background']),
 		('CLASS_STAR'	,	[False,	'CLASS_STAR',	'1D', 'S/G classifier output']),
