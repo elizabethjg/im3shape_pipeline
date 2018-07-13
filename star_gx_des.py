@@ -22,7 +22,7 @@ def star_gx(sex_salida, fwhm, plot, PSFEx_manual):
 	 						If PSFEx_manual = False, the file is not modified and returns salida_sex
 	'''
 	if plot in ('s', 'S', 'si', 'Si', 'SI'):
-		from pylab import *
+		import matplotlib.pyplot as plt
 	
 	sex_salida_mod = sex_salida + '_mod'
 	os.system('rm '+sex_salida_mod)
@@ -58,7 +58,7 @@ def star_gx(sex_salida, fwhm, plot, PSFEx_manual):
 	# Clasifica los objetos ----------------------------------------------------------
 	ancho=0.4  #width in magnitudes 
 	mumin=11.5
-	mumax=17.
+	mumax=16.
 	mu=m*MAGBEST+n
 	mag = (MUMAX-n)
 	mask_good = (MUMAX > mumin) * (FWHM > fwhm-0.8) * (FLAG < 4.0) # Quitamos falsas detecciones
@@ -72,7 +72,7 @@ def star_gx(sex_salida, fwhm, plot, PSFEx_manual):
 	if PSFEx_manual:
 		mu_brightest = 18.										# Descartamos las estrellas mas brillantes
 		mask_bright = MUMAX<mu_brightest
-		mask_psfex = (~mask_bright)*mask_stars #+ mask_gx		# incluimos las galaxias ???
+		mask_psfex = mask_stars#*(~mask_bright) #+ mask_gx		# incluimos las galaxias ???
 
 		hdul_psfex = fits.open(sex_salida)						# Abro una copia y guardo los objetos para PSFEx
 		hdul_psfex[2].data = hdul_psfex[2].data[mask_psfex]

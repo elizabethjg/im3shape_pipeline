@@ -8,7 +8,7 @@ from pipeio import *
 def seeing_func(imagen,pixsize,zeropoint,gain,corrida,filtro,magmax,magmin,fwhmmax,plot):
 
 	if plot in ('s', 'S', 'si', 'Si', 'SI'):
-		from pylab import *
+		import matplotlib.pyplot as plt
 
 	#print '----------------------------------------------------------------'
 	#print '                RUNNING SExtractor (pre-PSFEx)                  '
