@@ -132,7 +132,7 @@ def main_203(argv):
         ##########################################
         #   EDITED SEMENTATION MASK
         ##########################################
-        if seg_mask:
+        if options.use_segmentation_mask:
             stamp_seg_mask=seg_mask[int(ypos-half):int(ypos+half), int(xpos-half):int(xpos+half)]
             stamp_mask = np.where(stamp_seg_mask==identifier, 1, 0)
             mask = Image(stamp_mask)
