@@ -70,7 +70,7 @@ def main_203(argv):
         raise IOError('Unknown PSF input')
 
     ##########################################
-    #   EDITED SEMENTATION MASK
+    #   EDITED SEGMENTATION MASK
     ##########################################
 
     # Read in segementation mask
@@ -134,11 +134,12 @@ def main_203(argv):
         ##########################################
         if options.use_segmentation_mask:
             stamp_seg_mask=seg_mask[int(ypos-half):int(ypos+half), int(xpos-half):int(xpos+half)]
-            stamp_mask = np.where(stamp_seg_mask==identifier, 1, 0)
+            stamp_mask = np.where(stamp_seg_mask==identifier, 1, 0)        # includes the object
+            #stamp_mask += np.where(stamp_seg_mask==0, 1, 0)                # includes the background
             mask = Image(stamp_mask)
         else:
             mask = None
-		##########################################
+	##########################################
 		
         extra_output = {}
         if options.psf_input == 'moffat_catalog':
