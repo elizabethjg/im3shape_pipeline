@@ -21,14 +21,14 @@ def delta_fi(fi):
 	return 1./np.sqrt(np.cos(fi)**2+(f**2)*np.sin(fi)**2)
 
 
-def esis_profile_sigma(RDfi,f,disp=250.):
+def esis_profile_sigma(RDfi,f,disp):
 	R,fi = RDfi
 	Rm=R*1.e6*pc
 	R0 = ((disp*1.e3)**2)/G
 	b = (Rm/R0)*np.sqrt((f**2)*np.cos(fi)**2+np.sin(fi)**2)
 	D_Sigma = (np.sqrt(f)/(2.*b))*(pc**2/Msun)
 	Rout = R*np.sqrt((f**2)*np.cos(fi)**2+np.sin(fi)**2)
-	return Rout,D_Sigma
+	return D_Sigma
 	
 		
 def e_SIS_stack_fit(R,fi,D_Sigma,err):	
@@ -66,14 +66,15 @@ def esis_profile_sigma_mod_par(R,fi,f,disp=250.):
 	Rout = R
 	return Rout,D_Sigma	
 
+def sis_profile_sigma(R,sigma):
+	Rm=R*1.e6*pc
+	return (((sigma*1.e3)**2)/(2.*G*Rm))*(pc**2/Msun)
+
+
 
 def SIS_stack_fit(R,D_Sigma,err):
 	
-	
 	# R en Mpc, D_Sigma M_Sun/pc2
-	def sis_profile_sigma(R,sigma):
-		Rm=R*1.e6*pc
-		return (((sigma*1.e3)**2)/(2.*G*Rm))*(pc**2/Msun)
 	
 
 	sigma,err_sigma_cuad=curve_fit(sis_profile_sigma,R,D_Sigma,sigma=err,absolute_sigma=True)
@@ -86,50 +87,56 @@ def SIS_stack_fit(R,D_Sigma,err):
 	yplot=sis_profile_sigma(xplot,sigma)
 	
 	return sigma[0],np.sqrt(err_sigma_cuad)[0][0],chired,xplot,yplot
+
+
+def NFW_profile_sigma(datos,R200):
+	
+	R, roc_mpc, z = datos
+	#calculo de c usando la relacion de Duffy et al 2008
+	
+	M=((800.0*np.pi*roc_mpc*(R200**3))/(3.0*Msun))*0.7
+	c=5.71*((M/2.e12)**-0.084)*((1.+z)**-0.47)
+	
+	####################################################
+	
+	deltac=(200./3.)*( (c**3) / ( np.log(1.+c)- (c/(1+c)) ))
+	x=(R*c)/R200
+	m1=x< 1.0
+	atanh=np.arctanh(((1.0-x[m1])/(1.0+x[m1]))**0.5)
+	jota=np.zeros(len(x))
+	jota[m1]=(4.0*atanh)/((x[m1]**2.0)*((1.0-x[m1]**2.0)**0.5)) \
+		+ (2.0*np.log(x[m1]/2.0))/(x[m1]**2.0) - 1.0/(x[m1]**2.0-1.0) \
+		+ (2.0*atanh)/((x[m1]**2.0-1.0)*((1.0-x[m1]**2.0)**0.5))
+	m2=x> 1.0     
+	atan=np.arctan(((x[m2]-1.0)/(1.0+x[m2]))**0.5)
+	jota[m2]=(4.0*atan)/((x[m2]**2.0)*((x[m2]**2.0-1.0)**0.5)) \
+		+ (2.0*np.log(x[m2]/2.0))/(x[m2]**2.0) - 1.0/(x[m2]**2.0-1.0) \
+		+ (2.0*atan)/((x[m2]**2.0-1.0)**1.5)
+	m3=(x == 1.0)
+	jota[m3]=2.0*np.log(0.5)+5.0/3.0
+	rs_m=(R200*1.e6*pc)/c
+	kapak=(2.*rs_m*deltac*roc_mpc)*((pc**2/Msun)*((pc*1.0e6)**3.0))
+	return kapak*jota
+
+
+
 	
 def NFW_stack_fit(R,D_Sigma,err,z,roc):
 	# R en Mpc, D_Sigma M_Sun/pc2
 	#Ecuacion 15 (g(x)/2)
 	roc_mpc=roc*((pc*1.0e6)**3.0)
 
-	def NFW_profile(R,R200):
-		
-		#calculo de c usando la relacion de Duffy et al 2008
-		
-		M=((800.0*np.pi*roc_mpc*(R200**3))/(3.0*Msun))*0.7
-		c=5.71*((M/2.e12)**-0.084)*((1.+z)**-0.47)
-		
-		####################################################
-		
-		deltac=(200./3.)*( (c**3) / ( np.log(1.+c)- (c/(1+c)) ))
-		x=(R*c)/R200
-		m1=x< 1.0
-		atanh=np.arctanh(((1.0-x[m1])/(1.0+x[m1]))**0.5)
-		jota=np.zeros(len(x))
-		jota[m1]=(4.0*atanh)/((x[m1]**2.0)*((1.0-x[m1]**2.0)**0.5)) \
-			+ (2.0*np.log(x[m1]/2.0))/(x[m1]**2.0) - 1.0/(x[m1]**2.0-1.0) \
-			+ (2.0*atanh)/((x[m1]**2.0-1.0)*((1.0-x[m1]**2.0)**0.5))
-		m2=x> 1.0     
-		atan=np.arctan(((x[m2]-1.0)/(1.0+x[m2]))**0.5)
-		jota[m2]=(4.0*atan)/((x[m2]**2.0)*((x[m2]**2.0-1.0)**0.5)) \
-			+ (2.0*np.log(x[m2]/2.0))/(x[m2]**2.0) - 1.0/(x[m2]**2.0-1.0) \
-			+ (2.0*atan)/((x[m2]**2.0-1.0)**1.5)
-		m3=(x == 1.0)
-		jota[m3]=2.0*np.log(0.5)+5.0/3.0
-		rs_m=(R200*1.e6*pc)/c
-		kapak=(2.*rs_m*deltac*roc)*(pc**2/Msun)
-		return kapak*jota
 
-	NFW_out=curve_fit(NFW_profile,R,D_Sigma,sigma=err,absolute_sigma=True)
+	NFW_out=curve_fit(NFW_profile_sigma,(R, roc_mpc,z),D_Sigma,sigma=err,absolute_sigma=True)
 	e_R200=np.sqrt(NFW_out[1][0][0])
 	R200=NFW_out[0][0]
 	
-	ajuste=NFW_profile(R,R200)
+	ajuste=NFW_profile_sigma((R, roc_mpc,z),R200)
 	
 	chired=chi_red(ajuste,D_Sigma,err,1)	
 
 	xplot=np.arange(0.001,R.max()+1.,0.001)
-	yplot=NFW_profile(xplot,R200)
+	yplot=NFW_profile_sigma((xplot,roc_mpc,z),R200)
 
 	#calculo de c usando la relacion de Duffy et al 2008
 	M=((800.0*np.pi*roc_mpc*(R200**3))/(3.0*Msun))*0.7
@@ -138,22 +145,24 @@ def NFW_stack_fit(R,D_Sigma,err,z,roc):
 	
 	return R200,e_R200,chired,xplot,yplot,c
 
+def sis_profile_shear(datos,sigma):
+	R,beta,D_ang = datos
+	#parameters
+	return (4.*np.pi*(sigma**2)*beta*D_ang)/(((cvel/1000.)**2.)*2.*R)
+
+
 def SIS_fit(R,shear,err,beta,zlens):
 	# R en Mpc
 	D_ang=cd.angular_diameter_distance(zlens, z0=0, **cosmo)
 
-	def sis_profile_sigma(R,sigma):
-			#parameters
-		return (4.*np.pi*(sigma**2)*beta*D_ang)/(((cvel/1000.)**2.)*2.*R)
+	sigma,err_sigma_cuad=curve_fit(sis_profile_shear,(R,beta,D_ang),shear,sigma=err,absolute_sigma=True)
 
-	sigma,err_sigma_cuad=curve_fit(sis_profile_sigma,R,shear,sigma=err,absolute_sigma=True)
-
-	ajuste=sis_profile_sigma(R,sigma)
+	ajuste=sis_profile_shear((R,beta,D_ang),sigma)
 	
 	chired=chi_red(ajuste,shear,err,1)	
 	
 	xplot=np.arange(0.001,R.max()+1.,0.001)
-	yplot=sis_profile_sigma(xplot,sigma)
+	yplot=sis_profile_shear((xplot,beta,D_ang),sigma)
 	
 	return sigma[0],np.sqrt(err_sigma_cuad)[0][0],chired,xplot,yplot
 	
@@ -209,6 +218,36 @@ def NFW_fit_c(R,shear,err,roc,zlens,sigmac):
 	return R200,e_R200,c,e_c,chired,xplot,yplot
 
 
+def NFW_profile_shear(datos,R200):
+	
+	R, roc_mpc, sigmac,zlens = datos
+	
+	#calculo de c usando la relacion de Duffy et al 2008
+	
+	M=((800.0*np.pi*roc_mpc*(R200**3))/(3.0*Msun))*0.7
+	c=5.71*((M/2.e12)**-0.084)*((1.+zlens)**-0.47)
+	####################################################
+
+	
+	deltac=(200./3.)*( (c**3) / ( np.log(1.+c)- (c/(1+c)) ))
+	x=(R*c)/R200
+	m1=x< 1.0
+	atanh=np.arctanh(((1.0-x[m1])/(1.0+x[m1]))**0.5)
+	jota=np.zeros(len(x))
+	jota[m1]=(4.0*atanh)/((x[m1]**2.0)*((1.0-x[m1]**2.0)**0.5)) \
+		+ (2.0*np.log(x[m1]/2.0))/(x[m1]**2.0) - 1.0/(x[m1]**2.0-1.0) \
+		+ (2.0*atanh)/((x[m1]**2.0-1.0)*((1.0-x[m1]**2.0)**0.5))
+	m2=x> 1.0     
+	atan=np.arctan(((x[m2]-1.0)/(1.0+x[m2]))**0.5)
+	jota[m2]=(4.0*atan)/((x[m2]**2.0)*((x[m2]**2.0-1.0)**0.5)) \
+		+ (2.0*np.log(x[m2]/2.0))/(x[m2]**2.0) - 1.0/(x[m2]**2.0-1.0) \
+		+ (2.0*atan)/((x[m2]**2.0-1.0)**1.5)
+	m3=(x == 1.0)
+	jota[m3]=2.0*np.log(0.5)+5.0/3.0
+	rs_m=(R200*1.e6*pc)/c
+	kapak=(2.*rs_m*deltac*roc_mpc)/(sigmac*((pc*1.0e6)**3.0))
+	return kapak*jota
+
 def NFW_fit(R,shear,err,zlens,sigmac):
 	#Ecuacion 15 (g(x)/2)
 	
@@ -216,43 +255,17 @@ def NFW_fit(R,shear,err,zlens,sigmac):
 	roc=(3.0*(H**2.0))/(8.0*np.pi*G) #critical density at z_cluster (kg.m-3)
 	roc_mpc=roc*((pc*1.0e6)**3.0)
 
-	def NFW_profile(R,R200):
-		
-		#calculo de c usando la relacion de Duffy et al 2008
-		
-		M=((800.0*np.pi*roc_mpc*(R200**3))/(3.0*Msun))*0.7
-		c=5.71*((M/2.e12)**-0.084)*((1.+zlens)**-0.47)
-		####################################################
-	
-		
-		deltac=(200./3.)*( (c**3) / ( np.log(1.+c)- (c/(1+c)) ))
-		x=(R*c)/R200
-		m1=x< 1.0
-		atanh=np.arctanh(((1.0-x[m1])/(1.0+x[m1]))**0.5)
-		jota=np.zeros(len(x))
-		jota[m1]=(4.0*atanh)/((x[m1]**2.0)*((1.0-x[m1]**2.0)**0.5)) \
-			+ (2.0*np.log(x[m1]/2.0))/(x[m1]**2.0) - 1.0/(x[m1]**2.0-1.0) \
-			+ (2.0*atanh)/((x[m1]**2.0-1.0)*((1.0-x[m1]**2.0)**0.5))
-		m2=x> 1.0     
-		atan=np.arctan(((x[m2]-1.0)/(1.0+x[m2]))**0.5)
-		jota[m2]=(4.0*atan)/((x[m2]**2.0)*((x[m2]**2.0-1.0)**0.5)) \
-			+ (2.0*np.log(x[m2]/2.0))/(x[m2]**2.0) - 1.0/(x[m2]**2.0-1.0) \
-			+ (2.0*atan)/((x[m2]**2.0-1.0)**1.5)
-		m3=(x == 1.0)
-		jota[m3]=2.0*np.log(0.5)+5.0/3.0
-		rs_m=(R200*1.e6*pc)/c
-		kapak=(2.*rs_m*deltac*roc)/sigmac
-		return kapak*jota
 
-	NFW_out=curve_fit(NFW_profile,R,shear,sigma=err,absolute_sigma=True)
+
+	NFW_out=curve_fit(NFW_profile_shear,(R,roc_mpc,sigmac,zlens),shear,sigma=err,absolute_sigma=True)
 	e_R200=np.sqrt(NFW_out[1][0][0])
 	R200=NFW_out[0][0]
-	ajuste=NFW_profile(R,R200)
+	ajuste=NFW_profile_shear((R,roc_mpc,sigmac,zlens),R200)
 	
 	chired=chi_red(ajuste,shear,err,1)	
 
 	xplot=np.arange(0.001,R.max()+1.,0.001)
-	yplot=NFW_profile(xplot,R200)
+	yplot=NFW_profile_shear((xplot,roc_mpc,sigmac,zlens),R200)
 	
 	
 	#calculo de c usando la relacion de Duffy et al 2008
