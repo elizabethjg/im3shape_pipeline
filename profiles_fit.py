@@ -115,7 +115,7 @@ def NFW_profile_sigma(datos,R200):
 	m3=(x == 1.0)
 	jota[m3]=2.0*np.log(0.5)+5.0/3.0
 	rs_m=(R200*1.e6*pc)/c
-	kapak=(2.*rs_m*deltac*roc_mpc)*((pc**2/Msun)*((pc*1.0e6)**3.0))
+	kapak=((2.*rs_m*deltac*roc_mpc)*(pc**2/Msun))/((pc*1.0e6)**3.0)
 	return kapak*jota
 
 
